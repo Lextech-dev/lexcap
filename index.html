@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LexTechSolver — CAPTCHA Solving API</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple:      #5B4FE8;
+      --purple-dark: #4a3fd4;
+      --purple-soft: #EEF0FD;
+      --purple-mid:  #C7C3F7;
+      --text:        #1a1a2e;
+      --text-mid:    #4a4a6a;
+      --text-soft:   #8888aa;
+      --border:      #e4e4f0;
+      --bg:          #ffffff;
+      --bg-soft:     #f7f7fc;
+      --mono:        'JetBrains Mono', monospace;
+      --sans:        'Inter', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6%;
+      height: 60px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--purple);
+      letter-spacing: -0.3px;
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-mid);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover { color: var(--purple); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--purple-dark); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--purple);
+      border: 1.5px solid var(--purple);
+    }
+
+    .btn-outline:hover { background: var(--purple-soft); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 90px 6% 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--purple-soft);
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--purple);
+      border-radius: 50%;
+    }
+
+    .hero h1 {
+      font-size: 46px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--purple);
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: var(--text-mid);
+      max-width: 440px;
+      margin-bottom: 32px;
+      line-height: 1.7;
+    }
+
+    .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Demo card ── */
+    .demo-card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+
+    .demo-card .label {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 14px;
+    }
+
+    .demo-line { color: var(--text-mid); margin-bottom: 4px; }
+    .demo-line .k { color: #8b5cf6; }
+    .demo-line .s { color: #059669; }
+    .demo-line .p { color: var(--text-soft); }
+
+    .demo-result {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .demo-result .res-label {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
+
+    .demo-result .res-text {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--purple);
+      letter-spacing: 4px;
+    }
+
+    .demo-result .res-time {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 6px;
+    }
+
+    /* ── Stats ── */
+    .stats {
+      background: var(--purple);
+      padding: 48px 6%;
+    }
+
+    .stats-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 40px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -1px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--purple-mid);
+      margin-top: 4px;
+    }
+
+    /* ── How it works ── */
+    .section {
+      padding: 80px 6%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      margin-bottom: 48px;
+    }
+
+    .section-header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    .section-header p {
+      font-size: 16px;
+      color: var(--text-mid);
+      max-width: 480px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .step {
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg-soft);
+    }
+
+    .step-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--purple);
+      background: var(--purple-soft);
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+
+    /* ── Pricing ── */
+    .pricing-wrap {
+      background: var(--bg-soft);
+      padding: 80px 6%;
+    }
+
+    .pricing-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+
+    .plan {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+    }
+
+    .plan.featured {
+      border-color: var(--purple);
+      border-width: 2px;
+      position: relative;
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: -12px;
+      left: 28px;
+      background: var(--purple);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 12px;
+      border-radius: 20px;
+    }
+
+    .plan-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .plan-price {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .plan-price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-soft);
+    }
+
+    .plan-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .plan-features { list-style: none; margin-bottom: 28px; }
+
+    .plan-features li {
+      font-size: 14px;
+      color: var(--text-mid);
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: var(--purple);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .plan .btn { width: 100%; }
+
+    /* ── CTA banner ── */
+    .cta-banner {
+      background: var(--purple);
+      padding: 72px 6%;
+      text-align: center;
+    }
+
+    .cta-banner h2 {
+      font-size: 34px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    .cta-banner p {
+      font-size: 16px;
+      color: var(--purple-mid);
+      margin-bottom: 32px;
+    }
+
+    .cta-banner .btn-primary {
+      background: #fff;
+      color: var(--purple);
+      font-size: 15px;
+      padding: 12px 32px;
+    }
+
+    .cta-banner .btn-primary:hover { background: var(--purple-soft); }
+
+    /* ── Footer ── */
+    footer {
+      padding: 32px 6%;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    footer a {
+      font-size: 13px;
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--purple); }
+
+    /* ── Auth pages ── */
+    .auth-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-soft);
+      padding: 40px 20px;
+    }
+
+    .auth-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .auth-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--purple);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .auth-logo span { color: var(--text); }
+
+    .auth-tagline {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-soft);
+      margin-bottom: 32px;
+    }
+
+    .auth-card h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .auth-card .sub {
+      font-size: 14px;
+      color: var(--text-mid);
+      margin-bottom: 28px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-mid);
+      margin-bottom: 6px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: var(--sans);
+      color: var(--text);
+      background: var(--bg-soft);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus, .field select:focus {
+      border-color: var(--purple);
+      background: #fff;
+    }
+
+    .field input.error { border-color: #e53e3e; }
+
+    .field-error {
+      font-size: 12px;
+      color: #e53e3e;
+      margin-top: 4px;
+    }
+
+    .btn-full {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    .auth-switch {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-mid);
+      margin-top: 20px;
+    }
+
+    .auth-switch a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Dashboard ── */
+    .dash-wrap {
+      min-height: 100vh;
+      background: var(--bg-soft);
+    }
+
+    .dash-nav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dash-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--purple);
+      text-decoration: none;
+    }
+
+    .dash-logo span { color: var(--text); }
+
+    .dash-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-mid);
+    }
+
+    .dash-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--purple);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .dash-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .dash-greeting {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .dash-sub {
+      font-size: 14px;
+      color: var(--text-mid);
+      margin-bottom: 32px;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .dash-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .dash-card-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+    }
+
+    .dash-card-value {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .dash-card-sub {
+      font-size: 13px;
+      color: var(--text-mid);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 10px;
+      margin-top: 14px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--purple);
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── API Key box ── */
+    .key-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .key-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .key-section p {
+      font-size: 13px;
+      color: var(--text-mid);
+      margin-bottom: 18px;
+    }
+
+    .key-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-soft);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .key-box .key-val { flex: 1; word-break: break-all; }
+
+    .key-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+    .btn-sm {
+      padding: 7px 16px;
+      font-size: 13px;
+      border-radius: 7px;
+    }
+
+    /* ── Plan badge ── */
+    .plan-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--purple-soft);
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* ── M-Pesa modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px;
+      width: 100%;
+      max-width: 400px;
+      margin: 20px;
+    }
+
+    .modal h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: var(--text-mid);
+      margin-bottom: 24px;
+    }
+
+    .mpesa-logo {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: #4caf50;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .mpesa-steps {
+      background: var(--bg-soft);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .mpesa-step {
+      font-size: 13px;
+      color: var(--text-mid);
+      padding: 5px 0;
+      display: flex;
+      gap: 10px;
+    }
+
+    .mpesa-step strong { color: var(--text); min-width: 18px; }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-soft);
+      float: right;
+      margin-top: -8px;
+    }
+
+    /* ── Toast ── */
+    .toast-wrap {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--text);
+      color: #fff;
+      font-size: 13px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      animation: slideIn 0.2s ease;
+    }
+
+    .toast.success { background: #16a34a; }
+    .toast.error   { background: #dc2626; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Page visibility ── */
+    .page { display: none; }
+    .page.active { display: block; }
+    .auth-wrap.page.active { display: flex; }
+    .dash-wrap.page.active { display: block; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; gap: 40px; padding: 60px 5% 50px; }
+      .hero h1 { font-size: 34px; }
+      .steps { grid-template-columns: 1fr; }
+      .plans { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr; gap: 24px; }
+      .dash-grid { grid-template-columns: 1fr; }
+      nav { padding: 0 5%; }
+      .nav-links { gap: 16px; }
+    }
+
+    /* ── Additions for live backend ── */
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .sub-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .sub-pill.ok   { background: #ecfdf5; color: #047857; }
+    .sub-pill.warn { background: #fffbeb; color: #b45309; }
+    .sub-pill.bad  { background: #fef2f2; color: #b91c1c; }
+
+    .sub-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pay-note {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 14px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .pay-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pay-actions .btn { flex: 1; min-width: 140px; }
+
+    .config-warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LANDING
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="page-landing" class="page active">
+
+  <nav>
+    <a href="#" class="nav-logo" onclick="showPage('landing'); return false;">Lex<span>TechSolver</span></a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#" onclick="showPage('login'); return false;">Log in</a>
+      <a href="#" class="btn btn-primary" onclick="openPay('new'); return false;">Request access</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <div class="hero-badge">Live API · ONNX INT8</div>
+      <h1>Solve CAPTCHAs<br><em>reliably.</em></h1>
+      <p>A fast CAPTCHA solving API built for automation workflows. One API key, one endpoint, answers in under a second.</p>
+      <div class="hero-cta">
+        <a href="#" class="btn btn-primary" onclick="openPay('new'); return false;">Request access</a>
+        <a href="#how" class="btn btn-outline">See how it works</a>
+      </div>
+    </div>
+    <div class="demo-card">
+      <div class="label">API request</div>
+      <div class="demo-line"><span class="k">POST</span> <span class="s">/solve-captcha-base64</span></div>
+      <div class="demo-line" style="margin-top:10px"><span class="p">{</span></div>
+      <div class="demo-line" style="padding-left:16px"><span class="k">"image_base64"</span><span class="p">:</span> <span class="s">"..."</span><span class="p">,</span></div>
+      <div class="demo-line" style="padding-left:16px"><span class="k">"X-API-Key"</span><span class="p">:</span> <span class="s">"lxt-••••••••"</span></div>
+      <div class="demo-line"><span class="p">}</span></div>
+      <div class="demo-result">
+        <div class="res-label">Response</div>
+        <div class="res-text">AB3K9</div>
+        <div class="res-time">solved in 0.53s</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stats-inner">
+      <div>
+        <div class="stat-num">&lt; 1s</div>
+        <div class="stat-label">Typical solve time</div>
+      </div>
+      <div>
+        <div class="stat-num">1 key</div>
+        <div class="stat-label">Dedicated to each subscriber</div>
+      </div>
+      <div>
+        <div class="stat-num">ONNX INT8</div>
+        <div class="stat-label">Optimised model</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="how">
+    <div class="section-header">
+      <h2>Simple to get started</h2>
+      <p>Three steps from payment to your first solved CAPTCHA.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Request access</h3>
+        <p>Pay via M-Pesa and send us the confirmation. Accounts are set up by hand, so you get your login and API key directly.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Send the image</h3>
+        <p>POST a base64-encoded CAPTCHA image to the endpoint with your API key in the header.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Get the answer</h3>
+        <p>Receive the solved text in the response and use it directly in your workflow.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pricing-wrap" id="pricing">
+    <div class="pricing-inner">
+      <div class="section-header">
+        <h2>Pay via M-Pesa</h2>
+        <p>One simple monthly plan. Renew whenever you're ready.</p>
+      </div>
+      <div style="max-width:420px;margin:0 auto">
+        <div class="plan featured">
+          <div class="plan-badge">One plan, everything included</div>
+          <div class="plan-name">Standard</div>
+          <div class="plan-price">KSh 1,500 <span>/ mo</span></div>
+          <div class="plan-desc">Full access with one dedicated API key.</div>
+          <ul class="plan-features">
+            <li>Unlimited solves</li>
+            <li>1 dedicated API key</li>
+            <li>Sub-second response</li>
+            <li>Direct support</li>
+          </ul>
+          <a href="#" class="btn btn-primary" onclick="openPay('new'); return false;">Request access</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-banner">
+    <h2>Ready to automate?</h2>
+    <p>One plan. One key. Unlimited solves. Pay via M-Pesa.</p>
+    <a href="#" class="btn btn-primary" onclick="openPay('new'); return false;">Request access</a>
+  </div>
+
+  <footer>
+    <p>© 2026 LexTechSolver</p>
+    <a href="#" onclick="openPay('new'); return false;">Contact</a>
+  </footer>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LOGIN
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">Lex<span>TechSolver</span></div>
+      <div class="auth-tagline">CAPTCHA solving API</div>
+
+      <h2>Welcome back</h2>
+      <div class="sub">Log in to your dashboard.</div>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label for="li-email">Email address</label>
+          <input type="email" id="li-email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="li-pass">Password</label>
+          <input type="password" id="li-pass" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="li-btn">Log in</button>
+      </form>
+
+      <div class="auth-switch">
+        Don't have an account? <a href="#" onclick="openPay('new'); return false;">Request access</a>
+      </div>
+      <div class="auth-switch" style="margin-top:8px">
+        <a href="#" onclick="showPage('landing'); return false;">← Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="dash-wrap">
+    <div class="dash-nav">
+      <a href="#" class="dash-logo" onclick="return false;">Lex<span>TechSolver</span></a>
+      <div class="dash-user">
+        <span id="dash-email-display"></span>
+        <div class="dash-avatar" id="dash-avatar">L</div>
+        <a href="#" onclick="handleLogout(); return false;" style="font-size:13px;color:var(--text-soft);text-decoration:none;margin-left:8px">Log out</a>
+      </div>
+    </div>
+
+    <div class="dash-body">
+      <div class="plan-pill">⚡ Standard plan</div>
+      <div class="dash-greeting" id="dash-greeting"></div>
+      <div class="dash-sub">Your account at a glance.</div>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-label">Solves today</div>
+          <div class="dash-card-value" id="dash-solves">0</div>
+          <div class="dash-card-sub">resets at midnight UTC</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Total solves</div>
+          <div class="dash-card-value" id="dash-total">0</div>
+          <div class="dash-card-sub">since your account was created</div>
+        </div>
+      </div>
+
+      <div class="key-section">
+        <h3>Subscription</h3>
+        <div class="sub-row" style="margin-top:10px">
+          <div>
+            <span class="sub-pill ok" id="sub-pill">Active</span>
+            <p id="sub-detail" style="margin:10px 0 0"></p>
+          </div>
+          <button class="btn btn-sm btn-primary" id="renew-btn" onclick="openPay('renew')" style="display:none">Renew</button>
+        </div>
+      </div>
+
+      <div class="key-section">
+        <h3>Your API key</h3>
+        <p>Paste this into the extension popup, or send it in the <code style="font-family:var(--mono);font-size:12px;background:var(--bg-soft);padding:2px 6px;border-radius:4px">X-API-Key</code> header.</p>
+        <div class="key-box">
+          <span class="key-val" id="dash-api-key"></span>
+          <button class="btn btn-sm btn-outline" onclick="toggleKey()" id="key-toggle-btn">Show</button>
+        </div>
+        <div class="key-actions">
+          <button class="btn btn-sm btn-outline" onclick="copyKey()">Copy key</button>
+          <button class="btn btn-sm btn-outline" onclick="regenerateKey()" id="regen-btn">Regenerate</button>
+        </div>
+      </div>
+
+      <div class="key-section">
+        <h3>Quick start</h3>
+        <p>Make your first API call.</p>
+        <div class="demo-card" style="margin-top:0">
+          <div class="demo-line"><span class="k">POST</span> <span class="s" id="qs-url"></span></div>
+          <div class="demo-line" style="margin-top:8px"><span class="k">Headers:</span></div>
+          <div class="demo-line" style="padding-left:16px"><span class="p">Content-Type: application/json</span></div>
+          <div class="demo-line" style="padding-left:16px"><span class="p">X-API-Key: <span id="qs-key"></span></span></div>
+          <div class="demo-line" style="margin-top:8px"><span class="k">Body:</span></div>
+          <div class="demo-line" style="padding-left:16px"><span class="p">{ "image_base64": "..." }</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     ACCESS / RENEWAL (M-Pesa instructions — no fake auto-activation)
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePay()">×</button>
+    <div class="mpesa-logo">M-PESA</div>
+    <h3 id="pay-title">Request access</h3>
+    <p id="pay-desc"></p>
+
+    <div id="pay-body">
+      <div class="mpesa-steps">
+        <div class="mpesa-step"><strong>1.</strong> <span>Open M-Pesa and choose <strong>Send Money</strong></span></div>
+        <div class="mpesa-step"><strong>2.</strong> <span>Number: <strong id="pay-number"></strong> (<span id="pay-name"></span>)</span></div>
+        <div class="mpesa-step"><strong>3.</strong> <span>Amount: <strong>KSh 1,500</strong></span></div>
+        <div class="mpesa-step"><strong>4.</strong> <span>Message us the <strong>M-Pesa confirmation code</strong> and <span id="pay-ref"></span></span></div>
+      </div>
+      <div class="pay-actions">
+        <a class="btn btn-primary" id="pay-wa" target="_blank" rel="noopener">Message on WhatsApp</a>
+        <a class="btn btn-outline" id="pay-mail">Email us</a>
+      </div>
+      <div class="pay-note" id="pay-footnote"></div>
+    </div>
+
+    <div class="config-warning" id="pay-unconfigured" style="display:none">
+      Payment details aren't available yet. Please check back shortly.
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// CONFIG — set these before deploying. Values starting with SET_ are treated
+// as "not configured" and the payment modal will refuse to show them.
+// ══════════════════════════════════════════════════════════════════════════
+const CONFIG = {
+    mpesaNumber: '0745164951',   // e.g. '0712 345 678'
+    mpesaName:   'Kelvin',   // name that appears on M-Pesa
+    whatsapp:    '254745164951',       // international format, digits only: '254712345678'
+    email:       'mwauranjorogekelvin@gmail.com',          // e.g. 'you@example.com'
+};
+const isSet = v => typeof v === 'string' && v.length > 0 && !v.startsWith('SET_');
+
+// ── State ──────────────────────────────────────────────────────────────────
+let me         = null;
+let keyVisible = false;
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    $('page-' + page).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className   = `toast ${type}`;
+    el.textContent = msg;
+    $('toast-wrap').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+}
+
+async function api(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    const token = localStorage.getItem('lxt_token');
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    const res = await fetch(path, { ...opts, headers });
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+
+    if (!res.ok) {
+        const detail = data && data.detail;
+        const err = new Error(typeof detail === 'string' ? detail : 'Request failed');
+        err.status = res.status;
+        throw err;
+    }
+    return data;
+}
+
+// ── Login / logout ─────────────────────────────────────────────────────────
+async function handleLogin(e) {
+    e.preventDefault();
+    const btn = $('li-btn');
+    btn.textContent = 'Logging in...';
+    btn.disabled    = true;
+    try {
+        const { token } = await api('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({
+                email:    $('li-email').value.trim(),
+                password: $('li-pass').value,
+            }),
+        });
+        localStorage.setItem('lxt_token', token);
+        $('li-pass').value = '';
+        await loadDashboard();
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        btn.textContent = 'Log in';
+        btn.disabled    = false;
+    }
+}
+
+function handleLogout() {
+    localStorage.removeItem('lxt_token');
+    me = null;
+    showPage('landing');
+    toast('Logged out.');
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────
+async function loadDashboard(silent = false) {
+    try {
+        me = await api('/me');
+    } catch (err) {
+        if (err.status === 401) localStorage.removeItem('lxt_token');
+        if (!silent) toast(err.message, 'error');
+        showPage(silent ? 'landing' : 'login');
+        return;
+    }
+    renderDashboard(me);
+    showPage('dashboard');
+}
+
+function subscriptionState(u) {
+    if (!u.active) {
+        return { cls: 'bad', label: 'Account disabled', detail: 'Contact support to reactivate your account.', renew: true };
+    }
+    if (!u.expires_at) {
+        return { cls: 'ok', label: 'Active', detail: 'No expiry date set.', renew: false };
+    }
+    const ms   = new Date(u.expires_at) - Date.now();
+    const days = Math.ceil(ms / 86400000);
+    const date = new Date(u.expires_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    if (ms <= 0) {
+        return { cls: 'bad', label: 'Expired', detail: `Your subscription ended on ${date}. Solving is paused until you renew.`, renew: true };
+    }
+    if (days <= 7) {
+        return { cls: 'warn', label: `Expires in ${days} day${days === 1 ? '' : 's'}`, detail: `Renews or ends on ${date}.`, renew: true };
+    }
+    return { cls: 'ok', label: 'Active', detail: `${days} days left · ends ${date}.`, renew: false };
+}
+
+function maskKey(key) {
+    return key.substring(0, 7) + '••••••••••••••••••••••••••••••';
+}
+
+function renderDashboard(u) {
+    const hour      = new Date().getHours();
+    const greeting  = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    const firstName = (u.name || '').split(' ')[0] || 'there';
+
+    $('dash-greeting').textContent      = `${greeting}, ${firstName}`;
+    $('dash-email-display').textContent = u.email;
+    $('dash-avatar').textContent        = firstName[0].toUpperCase();
+    $('dash-solves').textContent        = Number(u.solves_today).toLocaleString();
+    $('dash-total').textContent         = Number(u.solves_total).toLocaleString();
+
+    const s = subscriptionState(u);
+    const pill = $('sub-pill');
+    pill.className   = `sub-pill ${s.cls}`;
+    pill.textContent = s.label;
+    $('sub-detail').textContent = s.detail;
+    $('renew-btn').style.display = s.renew ? 'inline-flex' : 'none';
+
+    keyVisible = false;
+    $('dash-api-key').textContent     = maskKey(u.api_key);
+    $('qs-key').textContent           = maskKey(u.api_key);
+    $('qs-url').textContent           = location.origin + '/solve-captcha-base64';
+    $('key-toggle-btn').textContent   = 'Show';
+}
+
+// ── API key controls ───────────────────────────────────────────────────────
+function toggleKey() {
+    keyVisible = !keyVisible;
+    $('dash-api-key').textContent   = keyVisible ? me.api_key : maskKey(me.api_key);
+    $('key-toggle-btn').textContent = keyVisible ? 'Hide' : 'Show';
+}
+
+function copyKey() {
+    navigator.clipboard.writeText(me.api_key)
+        .then(() => toast('API key copied.', 'success'))
+        .catch(() => toast('Could not copy — use Show and copy it manually.', 'error'));
+}
+
+async function regenerateKey() {
+    if (!confirm('Regenerate your API key?\n\nYour current key stops working within about a minute, and you must paste the new one into the extension.')) return;
+    const btn = $('regen-btn');
+    btn.disabled = true;
+    try {
+        const { api_key } = await api('/me/regenerate-key', { method: 'POST' });
+        me.api_key = api_key;
+        renderDashboard(me);
+        toast('New API key generated.', 'success');
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+// ── Access / renewal modal ─────────────────────────────────────────────────
+function openPay(mode) {
+    const renew = mode === 'renew' && me;
+    const ready = isSet(CONFIG.mpesaNumber) && isSet(CONFIG.mpesaName);
+
+    $('pay-title').textContent = renew ? 'Renew your subscription' : 'Request access';
+    $('pay-desc').textContent  = renew
+        ? 'Pay KSh 1,500 via M-Pesa and message us the confirmation. We extend your account by hand.'
+        : 'Pay KSh 1,500 via M-Pesa and message us the confirmation. We create your account and send your login.';
+
+    $('pay-body').style.display         = ready ? 'block' : 'none';
+    $('pay-unconfigured').style.display = ready ? 'none'  : 'block';
+
+    if (ready) {
+        const who = renew ? me.email : 'the email you want to use';
+        $('pay-number').textContent = CONFIG.mpesaNumber;
+        $('pay-name').textContent   = CONFIG.mpesaName;
+        $('pay-ref').textContent    = renew ? `your account email (${me.email})` : 'the email you want for your account';
+        $('pay-footnote').textContent = renew
+            ? 'Your subscription is extended once we confirm the payment.'
+            : 'Your login is sent to you once we confirm the payment.';
+
+        const text = renew
+            ? `Hi, I've renewed my LexTechSolver subscription. Account: ${who}. M-Pesa code: `
+            : `Hi, I've paid for LexTechSolver access. My email: . M-Pesa code: `;
+
+        const wa = $('pay-wa');
+        if (isSet(CONFIG.whatsapp)) {
+            wa.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
+            wa.style.display = 'inline-flex';
+        } else {
+            wa.style.display = 'none';
+        }
+
+        const mail = $('pay-mail');
+        if (isSet(CONFIG.email)) {
+            mail.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent(renew ? 'LexTechSolver renewal' : 'LexTechSolver access')}&body=${encodeURIComponent(text)}`;
+            mail.style.display = 'inline-flex';
+        } else {
+            mail.style.display = 'none';
+        }
+    }
+
+    $('pay-modal').classList.add('open');
+}
+
+function closePay() {
+    $('pay-modal').classList.remove('open');
+}
+
+$('pay-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closePay(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePay(); });
+
+// ── Init — restore session if a token exists ───────────────────────────────
+if (localStorage.getItem('lxt_token')) {
+    loadDashboard(true);
+}
+</script>
+</body>
+</html>

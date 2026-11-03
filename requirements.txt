@@ -1,0 +1,18 @@
+# Web
+fastapi==0.141.1
+uvicorn==0.54.0
+gunicorn==26.2.0
+httpx==0.28.1
+
+# Auth
+bcrypt==5.0.0
+PyJWT==2.10.1
+
+# Model runtime
+onnxruntime==1.23.2
+numpy==2.2.6
+Pillow==12.3.0
+
+# Build-time only (download + quantize the model)
+huggingface_hub==2.0.0
+onnx==1.23.0
